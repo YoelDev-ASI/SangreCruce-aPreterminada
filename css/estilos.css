@@ -1,0 +1,199 @@
+/* Estilos globales */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none; /* Prevenir selección de texto accidental */
+    -webkit-user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: fixed; /* Previene scroll por arrastre del navegador en móviles */
+    touch-action: none; /* Bloquea gestos del sistema como pellizcar o desplazar la página */
+    background-color: #0b0c10; /* Fondo oscuro premium */
+    font-family: 'Outfit', sans-serif;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor del juego - Mantiene relación de aspecto de 16:9 */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 56.25vw; /* 16:9 ratio (9 / 16 * 100) */
+    max-height: 100vh;
+    max-width: 177.78vh; /* 16:9 ratio (16 / 9 * 100) */
+    background-color: #1f2833;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: none;
+    overflow: hidden;
+    touch-action: none; /* Bloquea gestos táctiles en el marco de juego */
+}
+
+/* Lienzo de dibujo */
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a24; /* Color de fondo interno del lienzo */
+    display: block;
+}
+
+/* Capa de interfaz de usuario por encima del canvas */
+#ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Permite clicks a través del contenedor si está vacío */
+    z-index: 10;
+}
+
+/* Elementos interactivos dentro de la UI deben activar eventos de puntero */
+#ui-container * {
+    pointer-events: auto;
+}
+
+/* HUD superior de juego (Fase 4 & 6) */
+#hud-top-bar {
+    position: absolute;
+    top: 15px;
+    left: 40px;
+    display: flex;
+    align-items: center;
+    gap: 50px; /* Separación entre compras y mandos */
+    z-index: 20;
+}
+
+#recruitment-panel {
+    display: flex;
+    gap: 12px;
+}
+
+/* Tarjeta / Botón de tropa */
+.unit-card {
+    background: rgba(16, 16, 26, 0.85); /* Cristal traslúcido */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 2px solid #c5a059; /* Dorado */
+    border-radius: 6px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.unit-card:hover {
+    background: rgba(197, 160, 89, 0.2);
+    border-color: #ffd700;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(197, 160, 89, 0.25);
+}
+
+.unit-card:active {
+    transform: translateY(0);
+    background: rgba(197, 160, 89, 0.3);
+}
+
+/* Estado deshabilitado (sin fondos de oro) */
+.unit-card:disabled {
+    opacity: 0.35;
+    border-color: #4a4a5a;
+    background: rgba(12, 12, 18, 0.9);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Detalle interno de tarjeta */
+.unit-icon {
+    display: block;
+    flex-shrink: 0;
+}
+
+.unit-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.unit-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.unit-cost {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700; /* Dorado brillante para el coste */
+    margin-top: 1px;
+}
+
+/* Panel de Mandos Militares (Fase 6) */
+#commands-panel {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botones de comando militar */
+.cmd-btn {
+    background: rgba(20, 20, 30, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 2px solid #555565;
+    border-radius: 6px;
+    color: #a0a0b0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    outline: none;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cmd-btn:hover {
+    border-color: #c5a059;
+    color: #ffffff;
+}
+
+/* Estilos de botones activos con resplandor personalizado */
+#btn-cmd-retirarse.active {
+    border-color: #3ca0ff;
+    color: #3ca0ff;
+    box-shadow: 0 0 12px rgba(60, 160, 255, 0.4);
+    background: rgba(60, 160, 255, 0.1);
+}
+
+#btn-cmd-defender.active {
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    background: rgba(255, 215, 0, 0.1);
+}
+
+#btn-cmd-atacar.active {
+    border-color: #ff4d4d;
+    color: #ff4d4d;
+    box-shadow: 0 0 12px rgba(255, 77, 77, 0.4);
+    background: rgba(255, 77, 77, 0.1);
+}
