@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personaje Animado (Stickman Verde) - HTML5 Canvas</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1e1e24;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        canvas {
+            background-color: #ffffff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+        }
+
+        .controls {
+            margin-top: 18px;
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background-color: #1b5e20;
+            color: white;
+            transition: 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #2e7d32;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Personaje con Animación Cinemática (Brazos, Codos y Piernas)</h2>
+    <canvas id="canvasPersonaje" width="600" height="600"></canvas>
+
+    <div class="controls">
+        <button onclick="setEstado('idle')">Reposo (Idle)</button>
+        <button onclick="setEstado('caminar')">Caminar</button>
+        <button onclick="setEstado('saludar')">Saludar</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvasPersonaje');
+        const ctx = canvas.getContext('2d');
+
+        // Color verde de la imagen original
+        const colorVerde = '#1b5e20';
+
+        // Estado actual de la animación
+        let estadoAnimacion = 'caminar';
+        let tiempo = 0;
+
+        function setEstado(nuevoEstado) {
+            estadoAnimacion = nuevoEstado;
+        }
+
+        /**
+         * Función genérica para dibujar un miembro con articulación (Brazo o Pierna)
+         * Se encarga del movimiento de hombro/codo y cadera/rodilla por separado.
+         */
+        function dibujarMiembroArticulado(x, y, angulo1, largo1, angulo2, largo2, grosor, color, esManoOPie, esPie) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angulo1);
+
+            // 1. Tramo Superior (Hombro a Codo / Cadera a Rodilla)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, largo1);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = grosor;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Desplazarse a la articulación intermedia (Codo / Rodilla)
+            ctx.translate(0, largo1);
+            ctx.rotate(angulo2);
+
+            // 2. Tramo Inferior (Codo a Mano / Rodilla a Pie)
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, largo2);
+            ctx.stroke();
+
+            // 3. Extremo (Mano o Pie)
+            if (esManoOPie) {
+                ctx.translate(0, largo2);
+                if (esPie) {
+                    ctx.beginPath();
+                    ctx.arc(10, 0, grosor / 1.8, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, grosor / 1.6, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // BUCLE PRINCIPAL DE ANIMACIÓN
+        function animar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            tiempo += 0.05;
+
+            const posX = 300;
+            let posY = 220;
+
+            // Variables de articulaciones
+            let anguloHombroIzq = 0.2, anguloCodoIzq = 0.3;
+            let anguloHombroDer = -0.2, anguloCodoDer = -0.3;
+            let anguloCaderaIzq = -0.2, anguloRodillaIzq = 0.2;
+            let anguloCaderaDer = 0.2, anguloRodillaDer = 0.2;
+
+            // --- ESTADOS DE ÁNGULOS DINÁMICOS ---
+            if (estadoAnimacion === 'caminar') {
+                const ciclo = Math.sin(tiempo * 2);
+                posY += Math.abs(Math.sin(tiempo * 4)) * 6; // Balanceo vertical
+
+                // Movimiento articulado de piernas (Cadera y Rodilla)
+                anguloCaderaIzq = ciclo * 0.6;
+                anguloRodillaIzq = Math.max(0, -ciclo * 0.8) + 0.1;
+
+                anguloCaderaDer = -ciclo * 0.6;
+                anguloRodillaDer = Math.max(0, ciclo * 0.8) + 0.1;
+
+                // Movimiento articulado de brazos (Hombro y Codo)
+                anguloHombroIzq = -ciclo * 0.5;
+                anguloCodoIzq = 0.4 + Math.sin(tiempo * 2) * 0.2;
+
+                anguloHombroDer = ciclo * 0.5;
+                anguloCodoDer = 0.4 + Math.cos(tiempo * 2) * 0.2;
+
+            } else if (estadoAnimacion === 'idle') {
+                posY += Math.sin(tiempo) * 2; // Respiración suave
+                anguloHombroIzq = 0.25; anguloCodoIzq = 0.2;
+                anguloHombroDer = -0.25; anguloCodoDer = -0.2;
+                anguloCaderaIzq = 0.15; anguloRodillaIzq = 0.05;
+                anguloCaderaDer = -0.15; anguloRodillaDer = 0.05;
+
+            } else if (estadoAnimacion === 'saludar') {
+                anguloHombroDer = -2.5; // Brazo levantado
+                anguloCodoDer = Math.sin(tiempo * 5) * 0.5 - 0.5; // Agitar mano/antebrazo
+                anguloHombroIzq = 0.3; anguloCodoIzq = 0.2;
+            }
+
+            const largoBrazo1 = 55, largoBrazo2 = 50;
+            const largoPierna1 = 65, largoPierna2 = 60;
+            const grosorExtremidad = 22;
+
+            // 1. Brazo Trasero
+            dibujarMiembroArticulado(posX + 15, posY + 60, anguloHombroDer, largoBrazo1, anguloCodoDer, largoBrazo2, grosorExtremidad, colorVerde, true, false);
+
+            // 2. Pierna Trasera
+            dibujarMiembroArticulado(posX + 12, posY + 160, anguloCaderaDer, largoPierna1, anguloRodillaDer, largoPierna2, grosorExtremidad + 2, colorVerde, true, true);
+
+            // 3. Torso
+            ctx.beginPath();
+            ctx.moveTo(posX, posY + 40);
+            ctx.lineTo(posX + 22, posY + 60);
+            ctx.lineTo(posX + 18, posY + 160);
+            ctx.lineTo(posX - 18, posY + 160);
+            ctx.lineTo(posX - 22, posY + 60);
+            ctx.closePath();
+            ctx.fillStyle = colorVerde;
+            ctx.fill();
+
+            // 4. Cabeza
+            ctx.beginPath();
+            ctx.arc(posX, posY, 40, 0, Math.PI * 2);
+            ctx.fillStyle = colorVerde;
+            ctx.fill();
+
+            // 5. Pierna Delantera
+            dibujarMiembroArticulado(posX - 12, posY + 160, anguloCaderaIzq, largoPierna1, anguloRodillaIzq, largoPierna2, grosorExtremidad + 2, colorVerde, true, true);
+
+            // 6. Brazo Delantero
+            dibujarMiembroArticulado(posX - 15, posY + 60, anguloHombroIzq, largoBrazo1, anguloCodoIzq, largoBrazo2, grosorExtremidad, colorVerde, true, false);
+
+            requestAnimationFrame(animar);
+        }
+
+        animar();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Torre de Castillo - HTML5 Canvas</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0e68c;
+        }
+
+        canvas {
+            background-color: #ebc837;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="miCanvas" width="500" height="500"></canvas>
+
+    <script>
+        const canvas = document.getElementById('miCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Fondo amarillo/mostaza del lienzo
+        ctx.fillStyle = '#ebc837';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Color marrón oscuro del icono
+        const colorCastillo = '#4a2c11';
+
+        // --- 1. PARTE SUPERIOR (ALMENAS / CORONA DEL CASTILLO) ---
+        ctx.beginPath();
+        ctx.moveTo(110, 100);  // Esquina superior izquierda
+        ctx.lineTo(170, 100);  // Almena izquierda (borde superior)
+        ctx.lineTo(170, 160);  // Bajada primer hueco
+        ctx.lineTo(205, 160);  // Base primer hueco
+        ctx.lineTo(205, 100);  // Subida primer hueco
+        ctx.lineTo(295, 100);  // Almena central (borde superior)
+        ctx.lineTo(295, 160);  // Bajada segundo hueco
+        ctx.lineTo(330, 160);  // Base segundo hueco
+        ctx.lineTo(330, 100);  // Subida segundo hueco
+        ctx.lineTo(390, 100);  // Almena derecha (borde superior)
+        ctx.lineTo(390, 210);  // Lado derecho vertical
+        ctx.lineTo(350, 270);  // Diagonal inferior derecha hacia adentro
+        ctx.lineTo(150, 270);  // Base horizontal inferior
+        ctx.lineTo(110, 210);  // Diagonal inferior izquierda hacia afuera
+        ctx.closePath();       // Cierra hacia la esquina superior izquierda
+
+        ctx.fillStyle = colorCastillo;
+        ctx.fill();
+
+        // --- 2. PARTE INFERIOR (BASE CON PUERTA EN ARCO) ---
+        ctx.beginPath();
+        ctx.moveTo(140, 305);  // Esquina superior izquierda de la base
+        ctx.lineTo(360, 305);  // Borde superior
+        ctx.lineTo(360, 430);  // Borde derecho vertical
+        ctx.lineTo(285, 430);  // Base inferior derecha
+        ctx.lineTo(285, 370);  // Borde derecho de la puerta
+        ctx.quadraticCurveTo(250, 330, 215, 370); // Arco superior de la puerta
+        ctx.lineTo(215, 430);  // Borde izquierdo de la puerta
+        ctx.lineTo(140, 430);  // Base inferior izquierda
+        ctx.closePath();       // Cierra hacia la esquina superior izquierda de la base
+
+        ctx.fillStyle = colorCastillo;
+        ctx.fill();
+
+    </script>
+
+</body>
+
+</html>

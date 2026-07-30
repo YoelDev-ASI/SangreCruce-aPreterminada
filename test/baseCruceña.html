@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edificio Minimalista - Canvas JS</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #dbe7f0;
+        }
+
+        canvas {
+            background-color: #dbe7f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="miCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('miCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Paleta de colores minimalista
+        const colorCielo = '#87ceeb';
+        const colorPared = '#f7f7f7';
+        const colorSombra = '#e0e0e0';
+        const colorVentana = '#2c3e50';
+        const colorMarco = '#ffffff';
+        const colorPuerta = '#bdc3c7';
+        const colorEscalon = '#7f8c8d';
+        const colorTejado = '#a04000';
+
+        // 1. Cielo de fondo superior
+        ctx.fillStyle = colorCielo;
+        ctx.fillRect(0, 0, 800, 100);
+
+        // 2. Línea minimalista del tejado
+        ctx.fillStyle = colorTejado;
+        ctx.fillRect(80, 95, 640, 10);
+
+        // 3. Fachada Principal (Cuerpo del edificio)
+        ctx.fillStyle = colorPared;
+        ctx.fillRect(100, 105, 600, 420);
+
+        // Módulo o Torre Central Sobresaliente
+        ctx.fillRect(350, 75, 100, 450);
+
+        // Sombras sutiles del relieve central
+        ctx.fillStyle = colorSombra;
+        ctx.fillRect(345, 105, 5, 420);
+        ctx.fillRect(450, 105, 5, 420);
+
+        // 4. Arquería Superior (Piso 4 - Galerías)
+        ctx.fillStyle = colorVentana;
+        // Lado Izquierdo
+        ctx.beginPath(); ctx.arc(160, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(148, 135, 24, 20);
+        ctx.beginPath(); ctx.arc(210, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(198, 135, 24, 20);
+        ctx.beginPath(); ctx.arc(260, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(248, 135, 24, 20);
+        ctx.beginPath(); ctx.arc(310, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(298, 135, 24, 20);
+        // Lado Derecho
+        ctx.beginPath(); ctx.arc(490, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(478, 135, 24, 20);
+        ctx.beginPath(); ctx.arc(540, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(528, 135, 24, 20);
+        ctx.beginPath(); ctx.arc(590, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(578, 135, 24, 20);
+        ctx.beginPath(); ctx.arc(640, 135, 12, Math.PI, 0); ctx.fill(); ctx.fillRect(628, 135, 24, 20);
+
+        // Ventana Central Superior
+        ctx.fillRect(380, 95, 40, 35);
+
+        // 5. Ventanas Piso 3
+        // Bloque Izquierdo
+        ctx.fillRect(140, 180, 35, 50);
+        ctx.fillRect(210, 180, 35, 50);
+        ctx.fillRect(280, 180, 35, 50);
+        // Bloque Central
+        ctx.fillRect(365, 180, 20, 50);
+        ctx.fillRect(390, 180, 20, 50);
+        ctx.fillRect(415, 180, 20, 50);
+        // Bloque Derecho
+        ctx.fillRect(485, 180, 35, 50);
+        ctx.fillRect(555, 180, 35, 50);
+        ctx.fillRect(625, 180, 35, 50);
+
+        // 6. Ventanas Piso 2
+        // Bloque Izquierdo
+        ctx.fillRect(140, 270, 35, 50);
+        ctx.fillRect(210, 270, 35, 50);
+        ctx.fillRect(280, 270, 35, 50);
+        // Bloque Central
+        ctx.fillRect(380, 270, 40, 50);
+        // Bloque Derecho
+        ctx.fillRect(485, 270, 35, 50);
+        ctx.fillRect(555, 270, 35, 50);
+        ctx.fillRect(625, 270, 35, 50);
+
+        // 7. Ventanas Piso 1 (Grandes de la base)
+        // Bloque Izquierdo
+        ctx.fillRect(135, 360, 45, 75);
+        ctx.fillRect(205, 360, 45, 75);
+        ctx.fillRect(275, 360, 45, 75);
+        // Bloque Derecho
+        ctx.fillRect(480, 360, 45, 75);
+        ctx.fillRect(550, 360, 45, 75);
+        ctx.fillRect(620, 360, 45, 75);
+
+        // 8. Portal y Puerta Principal
+        ctx.fillStyle = colorMarco;
+        ctx.fillRect(340, 340, 120, 135);
+        ctx.fillStyle = colorPared;
+        ctx.fillRect(348, 345, 104, 130);
+
+        // Arco de la entrada
+        ctx.fillStyle = colorVentana;
+        ctx.beginPath();
+        ctx.arc(400, 395, 40, Math.PI, 0);
+        ctx.fill();
+        ctx.fillRect(360, 395, 80, 80);
+
+        // Hojas de la puerta
+        ctx.fillStyle = colorPuerta;
+        ctx.fillRect(365, 405, 33, 70);
+        ctx.fillRect(402, 405, 33, 70);
+
+        // 9. Escalinatas
+        ctx.fillStyle = colorEscalon;
+        ctx.fillRect(330, 475, 140, 10);
+        ctx.fillRect(320, 485, 160, 10);
+        ctx.fillRect(310, 495, 180, 10);
+        ctx.fillRect(300, 505, 200, 15);
+
+        // Suelo
+        ctx.fillStyle = '#95a5a6';
+        ctx.fillRect(0, 520, 800, 80);
+
+    </script>
+
+</body>
+
+</html>
