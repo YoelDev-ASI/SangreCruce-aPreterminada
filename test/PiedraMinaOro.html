@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Runa de Piedra y Oro - HTML5 Canvas</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+        }
+
+        canvas {
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="miCanvas" width="600" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('miCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Fondo blanco
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // ==========================================
+        // 1. SOMBRA BASE DE LA PIEDRA
+        // ==========================================
+        ctx.beginPath();
+        ctx.ellipse(300, 480, 210, 40, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+        ctx.fill();
+
+        // ==========================================
+        // 2. CUERPO BASE DE LA PIEDRA (SILUETA IRREGULAR)
+        // ==========================================
+        ctx.beginPath();
+        ctx.moveTo(290, 140);
+        ctx.quadraticCurveTo(360, 160, 410, 210);
+        ctx.quadraticCurveTo(480, 280, 500, 360);
+        ctx.quadraticCurveTo(510, 430, 470, 470);
+        ctx.quadraticCurveTo(400, 520, 300, 520);
+        ctx.quadraticCurveTo(200, 510, 130, 450);
+        ctx.quadraticCurveTo(90, 390, 100, 300);
+        ctx.quadraticCurveTo(120, 220, 190, 170);
+        ctx.quadraticCurveTo(240, 130, 290, 140);
+        ctx.closePath();
+
+        // Degradado radial para dar volumen 3D a la roca
+        const gradRoca = ctx.createRadialGradient(280, 220, 50, 300, 350, 260);
+        gradRoca.addColorStop(0, '#9e9182');   // Gris/Marrón claro iluminado
+        gradRoca.addColorStop(0.5, '#786b5b'); // Tono medio
+        gradRoca.addColorStop(1, '#473d32');   // Sombra oscura en bordes/base
+
+        ctx.fillStyle = gradRoca;
+        ctx.fill();
+
+        // ==========================================
+        // 3. DETALLES / BISELES Y FACETAS DE LA ROCA
+        // ==========================================
+
+        // Bisel lateral izquierdo oscuro
+        ctx.beginPath();
+        ctx.moveTo(100, 300);
+        ctx.quadraticCurveTo(140, 360, 130, 450);
+        ctx.quadraticCurveTo(200, 510, 300, 520);
+        ctx.quadraticCurveTo(220, 460, 160, 390);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(35, 28, 22, 0.4)';
+        ctx.fill();
+
+        // Faceta superior izquierda iluminada
+        ctx.beginPath();
+        ctx.moveTo(290, 140);
+        ctx.quadraticCurveTo(240, 130, 190, 170);
+        ctx.lineTo(240, 210);
+        ctx.quadraticCurveTo(280, 180, 290, 140);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(215, 205, 190, 0.3)';
+        ctx.fill();
+
+
+        // ==========================================
+        // 4. EMBLEMA / RUNA DE ORO INCRUSTADA
+        // ==========================================
+
+        // Sombra del bajorrelieve (profundidad de la incrustación)
+        ctx.save();
+        ctx.translate(3, 4);
+        dibujarRuna(ctx);
+        ctx.fillStyle = '#3a2707';
+        ctx.fill();
+        ctx.restore();
+
+        // Cuerpo principal de Oro
+        dibujarRuna(ctx);
+
+        // Degradado Dorado con reflejo luminoso
+        const gradOro = ctx.createLinearGradient(150, 200, 450, 400);
+        gradOro.addColorStop(0, '#ffd83b');   // Amarillo oro brillante
+        gradOro.addColorStop(0.3, '#fff486'); // Reflejo intenso
+        gradOro.addColorStop(0.7, '#f0a30a'); // Dorado anaranjado
+        gradOro.addColorStop(1, '#b56d00');   // Sombra de oro profundo
+
+        ctx.fillStyle = gradOro;
+        ctx.fill();
+
+        // Borde de bisel dorado para efecto tallado
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#fff8b3';
+        ctx.stroke();
+
+
+        // ==========================================
+        // FUNCIÓN DE COORDENADAS DE LA RUNA (SÍMBOLO/HUMANOIDE)
+        // ==========================================
+        function dibujarRuna(c) {
+            c.beginPath();
+
+            // 1. Cabeza/Extremidad superior
+            c.moveTo(290, 190);
+            c.lineTo(320, 190);
+            c.lineTo(340, 215);
+            c.lineTo(370, 250);
+            c.lineTo(360, 270);
+
+            // 2. Brazo/Extremidad derecha
+            c.lineTo(410, 230);
+            c.lineTo(460, 250);
+            c.lineTo(460, 280);
+            c.lineTo(410, 290);
+            c.lineTo(380, 310);
+
+            // 3. Pierna/Pie inferior derecho
+            c.lineTo(400, 345);
+            c.lineTo(420, 355);
+            c.lineTo(410, 385);
+            c.lineTo(380, 420);
+            c.lineTo(360, 425);
+            c.lineTo(350, 385);
+            c.lineTo(365, 360);
+
+            // 4. Centro del cuerpo
+            c.lineTo(330, 350);
+
+            // 5. Pierna/Pie inferior izquierdo
+            c.lineTo(290, 370);
+            c.lineTo(260, 420);
+            c.lineTo(230, 430);
+            c.lineTo(220, 400);
+            c.lineTo(250, 370);
+            c.lineTo(265, 330);
+
+            // 6. Brazo/Extremidad izquierda
+            c.lineTo(220, 330);
+            c.lineTo(180, 320);
+            c.lineTo(170, 345);
+            c.lineTo(160, 320);
+            c.lineTo(180, 290);
+            c.lineTo(160, 270);
+            c.lineTo(180, 255);
+            c.lineTo(200, 275);
+            c.lineTo(220, 260);
+
+            // 7. Torso superior e integración
+            c.lineTo(240, 280);
+            c.lineTo(260, 250);
+            c.lineTo(240, 230);
+            c.lineTo(250, 210);
+            c.lineTo(275, 230);
+            c.lineTo(290, 260);
+
+            c.closePath();
+        }
+
+    </script>
+
+</body>
+
+</html>
