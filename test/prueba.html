@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Fusil Colonial - Canvas HTML5</title>
+    <style>
+        :root {
+            --bg-color: #1e1e24;
+            --panel-bg: #2b2d42;
+            --accent-color: #d90429;
+            --text-color: #edf2f4;
+            --border-color: #8d99ae;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: #ef233c;
+            text-align: center;
+        }
+
+        p.subtitle {
+            margin-top: 0;
+            color: #8d99ae;
+            font-size: 0.95rem;
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 1100px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .canvas-card {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            background-color: #f4f1de;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            cursor: crosshair;
+        }
+
+        .controls-card {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #edf2f4;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: #ef233c;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .radio-label {
+            font-weight: normal;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .code-info {
+            background-color: #15161e;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #a9b1d6;
+            overflow-x: auto;
+            border-left: 3px solid #ef233c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Visualizador de Fusil Colonial</h1>
+    <p class="subtitle">Herramienta interactiva para probar y ajustar el renderizado de mosquetes en HTML5 Canvas.</p>
+
+    <div class="container">
+        <div class="canvas-card">
+            <canvas id="canvas" width="600" height="400"></canvas>
+        </div>
+
+        <div class="controls-card">
+            <h3>Controles de Prueba</h3>
+
+            <div class="control-group">
+                <label for="bando">Bando del Personaje:</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="bando" value="patriota" checked onchange="render()"> Patriota
+                        (Derecha)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="bando" value="realista" onchange="render()"> Realista (Izquierda)
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="angulo">Ángulo de Inclinación: <span id="val-angulo">0°</span></label>
+                <input type="range" id="angulo" min="-180" max="180" value="0" oninput="render()">
+            </div>
+
+            <div class="control-group">
+                <label for="escala">Escala (Zoom): <span id="val-escala">3.0x</span></label>
+                <input type="range" id="escala" min="0.5" max="10" step="0.1" value="3.0" oninput="render()">
+            </div>
+
+            <div class="control-group">
+                <label for="modo">Nivel de Detalle del Dibujo:</label>
+                <select id="modo" onchange="render()"
+                    style="padding: 8px; border-radius: 6px; background: #1e1e24; color: white; border: 1px solid #8d99ae;">
+                    <option value="original">Código Original (Líneas simples)</option>
+                    <option value="detallado" selected>Diseño Detallado Completo (Chispa, Bayoneta, Culata)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <div class="checkbox-group">
+                    <label class="radio-label">
+                        <input type="checkbox" id="showHand" checked onchange="render()"> Mostrar mano de referencia
+                        (0,0)
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <label class="radio-label">
+                        <input type="checkbox" id="showGrid" checked onchange="render()"> Mostrar cuadrícula
+                    </label>
+                </div>
+            </div>
+
+            <div class="code-info">
+                <strong>Origen de coordenadas (0,0):</strong><br>
+                Representa el centro de la mano del Fusilero.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- CÓDIGO ORIGINAL PROPORCIONADO POR EL USUARIO ---
+        function dibujarFusilOriginal(ctx, x, y, angulo, escala = 1, bando = 'patriota') {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angulo);
+            ctx.scale(escala, escala);
+
+            const dir = bando === 'patriota' ? 1 : -1;
+
+            // Culata y cuerpo
+            ctx.strokeStyle = '#5c4033'; // Madera oscura
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(-8 * dir, 2);
+            ctx.lineTo(15 * dir, -2);
+            ctx.stroke();
+
+            // Cañón metálico largo
+            ctx.strokeStyle = '#4e4e4e'; // Hierro
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(5 * dir, -2);
+            ctx.lineTo(25 * dir, -2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // --- VERSIÓN DETALLADA DEL FUSIL DE CHISPA ---
+        function dibujarFusilDetallado(ctx, x, y, angulo, escala = 1, bando = 'patriota') {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angulo);
+            ctx.scale(escala, escala);
+
+            const dir = bando === 'patriota' ? 1 : -1;
+
+            // Culata de Madera
+            ctx.fillStyle = '#4a2c11';
+            ctx.strokeStyle = '#2b1808';
+            ctx.lineWidth = 0.5;
+
+            ctx.beginPath();
+            ctx.moveTo(-18 * dir, 5);
+            ctx.lineTo(-16 * dir, -2);
+            ctx.lineTo(-4 * dir, -2);
+            ctx.lineTo(18 * dir, -1);
+            ctx.lineTo(18 * dir, 2);
+            ctx.lineTo(-2 * dir, 3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Cantonera metálica (Placa trasera)
+            ctx.fillStyle = '#c5a059';
+            ctx.beginPath();
+            ctx.moveTo(-18 * dir, 5);
+            ctx.lineTo(-19 * dir, 5);
+            ctx.lineTo(-17 * dir, -2);
+            ctx.lineTo(-16 * dir, -2);
+            ctx.closePath();
+            ctx.fill();
+
+            // Cañón Metálico
+            ctx.fillStyle = '#7f8c8d';
+            ctx.fillRect(dir === 1 ? -2 : -28, -3.5, 30, 2);
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(dir === 1 ? -2 : -28, -3.5, 30, 2);
+
+            // Abrazaderas de latón/bronce
+            ctx.fillStyle = '#c5a059';
+            [2, 10, 18].forEach(pos => {
+                ctx.fillRect(pos * dir - (dir === -1 ? 1.5 : 0), -4, 1.5, 3);
+            });
+
+            // Mecanismo de Chispa (Pedernal)
+            ctx.fillStyle = '#34495e';
+            ctx.fillRect(-2 * dir - 1, -4.5, 4, 3);
+            ctx.beginPath();
+            ctx.arc(-1 * dir, -5, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Guardamonte (Gatillo)
+            ctx.strokeStyle = '#c5a059';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(1 * dir, 1.5, 2.5, 0, Math.PI);
+            ctx.stroke();
+
+            // Baqueta
+            ctx.strokeStyle = '#bdc3c7';
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(-2 * dir, -0.5);
+            ctx.lineTo(26 * dir, -0.5);
+            ctx.stroke();
+
+            // Bayoneta
+            ctx.fillStyle = '#ecf0f1';
+            ctx.beginPath();
+            ctx.moveTo(27 * dir, -3);
+            ctx.lineTo(36 * dir, -2.5);
+            ctx.lineTo(27 * dir, -2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#95a5a6';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawGrid() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const gridSize = 20;
+
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 1;
+
+            for (let x = 0; x < width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0); ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+
+            for (let y = 0; y < height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y); ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (document.getElementById('showGrid').checked) drawGrid();
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const bando = document.querySelector('input[name="bando"]:checked').value;
+            const anguloGrados = parseFloat(document.getElementById('angulo').value);
+            const anguloRadianes = (anguloGrados * Math.PI) / 180;
+            const escala = parseFloat(document.getElementById('escala').value);
+            const modo = document.getElementById('modo').value;
+
+            document.getElementById('val-angulo').innerText = `${anguloGrados}°`;
+            document.getElementById('val-escala').innerText = `${escala.toFixed(1)}x`;
+
+            if (document.getElementById('showHand').checked) {
+                ctx.save();
+                ctx.translate(centerX, centerY);
+
+                ctx.fillStyle = bando === 'patriota' ? 'rgba(41, 128, 185, 0.2)' : 'rgba(192, 57, 43, 0.2)';
+                ctx.beginPath();
+                ctx.arc(bando === 'patriota' ? -30 : 30, -50, 15, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#e0ac69';
+                ctx.beginPath();
+                ctx.arc(0, 0, 8 * (escala * 0.3 + 0.7), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#b58342';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(-15, 0); ctx.lineTo(15, 0);
+                ctx.moveTo(0, -15); ctx.lineTo(0, 15);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            if (modo === 'original') {
+                dibujarFusilOriginal(ctx, centerX, centerY, anguloRadianes, escala, bando);
+            } else {
+                dibujarFusilDetallado(ctx, centerX, centerY, anguloRadianes, escala, bando);
+            }
+        }
+
+        render();
+    </script>
+</body>
+
+</html>

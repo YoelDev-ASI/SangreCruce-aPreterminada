@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fondo Panorámico Colonial (3000px) - Canvas HTML5</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+        }
+
+        #container:active {
+            cursor: grabbing;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .ui-info {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 18px;
+            border-radius: 8px;
+            pointer-events: none;
+            font-size: 14px;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('container');
+
+        const WORLD_WIDTH = 3000;
+        const WORLD_HEIGHT = 800; // Alto interno del mundo
+        let cameraX = 0;
+
+        let isDragging = false;
+        let startX = 0;
+        let startCameraX = 0;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            clampCamera();
+            render();
+        }
+
+        function clampCamera() {
+            const maxScroll = WORLD_WIDTH - canvas.width;
+            if (maxScroll < 0) {
+                cameraX = 0;
+            } else {
+                if (cameraX < 0) cameraX = 0;
+                if (cameraX > maxScroll) cameraX = maxScroll;
+            }
+        }
+
+        // ==========================================
+        // RENDERIZADO DEL ESCENARIO PANORÁMICO
+        // ==========================================
+        function render() {
+            const viewW = canvas.width;
+            const viewH = canvas.height;
+            const scale = viewH / WORLD_HEIGHT;
+
+            ctx.save();
+            ctx.scale(scale, scale);
+            ctx.translate(-cameraX, 0);
+
+            // --- 1. CIELO AZUL CON NUBES (SIN MONTAÑAS) ---
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, 500);
+            skyGrad.addColorStop(0, '#5b9bd5');   // Azul claro superior
+            skyGrad.addColorStop(0.6, '#a4c2e6'); // Azul cielo horizonte
+            skyGrad.addColorStop(1, '#d8e5f3');   // Iluminación baja
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(cameraX, 0, viewW / scale, WORLD_HEIGHT);
+
+            // Nubes dispersas en el cielo
+            dibujarNube(300, 100);
+            dibujarNube(800, 140);
+            dibujarNube(1400, 90);
+            dibujarNube(2000, 130);
+            dibujarNube(2600, 110);
+
+
+            // --- 2. IGLESIA Y ÁRBOLES DE FONDO (LADO DERECHO - IMAGEN 2) ---
+            // Árboles verdes traseros
+            ctx.fillStyle = '#2d5a27';
+            ctx.beginPath(); ctx.arc(1750, 360, 80, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(2250, 350, 90, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(2350, 330, 70, 0, Math.PI * 2); ctx.fill();
+
+            // Iglesia de Terracota (Sección 1700px a 2200px)
+            const colorIglesia = '#b35a38';
+            const colorTechoIglesia = '#803419';
+
+            // Torre Izquierda
+            ctx.fillStyle = colorIglesia;
+            ctx.fillRect(1780, 180, 90, 240);
+            ctx.beginPath();
+            ctx.moveTo(1775, 180); ctx.lineTo(1825, 90); ctx.lineTo(1875, 180);
+            ctx.fillStyle = colorTechoIglesia; ctx.fill();
+
+            // Torre Derecha
+            ctx.fillStyle = colorIglesia;
+            ctx.fillRect(2050, 180, 90, 240);
+            ctx.beginPath();
+            ctx.moveTo(2045, 180); ctx.lineTo(2095, 90); ctx.lineTo(2145, 180);
+            ctx.fillStyle = colorTechoIglesia; ctx.fill();
+
+            // Cuerpo Central de la Iglesia
+            ctx.fillStyle = colorIglesia;
+            ctx.fillRect(1870, 240, 180, 180);
+            ctx.beginPath();
+            ctx.moveTo(1860, 240); ctx.lineTo(1960, 170); ctx.lineTo(2060, 240);
+            ctx.fillStyle = colorTechoIglesia; ctx.fill();
+
+            // Cruz Superior
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(1957, 130, 6, 40);
+            ctx.fillRect(1945, 142, 30, 6);
+
+            // Ventanales y portal
+            ctx.fillStyle = '#4a2313';
+            ctx.fillRect(1810, 210, 30, 50);
+            ctx.fillRect(2080, 210, 30, 50);
+            ctx.beginPath(); ctx.arc(1960, 300, 25, Math.PI, 0); ctx.fill(); ctx.fillRect(1935, 300, 50, 60);
+
+
+            // --- 3. CASONA Y MURO FRONTAL CONTINUO (3000px) ---
+            ctx.fillStyle = '#f4f0eb';
+            ctx.fillRect(0, 380, 3000, 180); // Pared blanca
+
+            ctx.fillStyle = '#b33226';
+            ctx.fillRect(0, 510, 3000, 50);  // Zócalo rojo
+
+            ctx.fillStyle = '#8c8278';
+            ctx.fillRect(0, 555, 3000, 10);  // Base de piedra
+
+            // Tejados de teja roja
+            ctx.fillStyle = '#a0482b';
+            ctx.fillRect(0, 360, 3000, 20);
+            ctx.fillStyle = '#7a311a';
+            ctx.fillRect(0, 375, 3000, 7);
+
+            // Balcón / Piso Superior de la Casona (1000px a 1600px)
+            ctx.fillStyle = '#f4f0eb';
+            ctx.fillRect(1000, 240, 600, 120);
+            ctx.fillStyle = '#8a3c22';
+            ctx.fillRect(990, 220, 620, 25);
+
+            // Estructura y barandilla de madera del balcón
+            ctx.fillStyle = '#5c3a21';
+            ctx.fillRect(1000, 310, 600, 10);
+            ctx.fillRect(1000, 270, 600, 8);
+            ctx.fillRect(1030, 278, 6, 32); ctx.fillRect(1080, 278, 6, 32);
+            ctx.fillRect(1130, 278, 6, 32); ctx.fillRect(1180, 278, 6, 32);
+            ctx.fillRect(1230, 278, 6, 32); ctx.fillRect(1280, 278, 6, 32);
+            ctx.fillRect(1330, 278, 6, 32); ctx.fillRect(1380, 278, 6, 32);
+            ctx.fillRect(1430, 278, 6, 32); ctx.fillRect(1480, 278, 6, 32);
+            ctx.fillRect(1530, 278, 6, 32); ctx.fillRect(1580, 278, 6, 32);
+
+            // Puertas del Balcón
+            ctx.fillStyle = '#3b2211';
+            ctx.fillRect(1050, 245, 35, 65);
+            ctx.fillRect(1200, 245, 35, 65);
+            ctx.fillRect(1350, 245, 35, 65);
+            ctx.fillRect(1500, 245, 35, 65);
+
+
+            // --- PUERTAS PRINCIPALES DE LA FACHADA ---
+            ctx.fillStyle = '#4a2c17';
+            ctx.fillRect(100, 420, 50, 90);   // Puerta 1
+            ctx.fillRect(450, 410, 70, 100);  // Puerta 2
+            ctx.fillRect(1250, 410, 70, 100); // Puerta 3
+            ctx.fillRect(2500, 410, 70, 100); // Puerta 4
+            ctx.fillRect(850, 450, 40, 30);   // Ventanita central
+
+
+            // --- 4. FLORES Y ARBUSTOS DE BUGAMBILIA ---
+            ctx.fillStyle = '#d81b60';
+            ctx.beginPath(); ctx.arc(950, 330, 45, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(1000, 310, 55, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(1060, 320, 50, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(1110, 350, 40, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(980, 370, 40, 0, Math.PI * 2); ctx.fill();
+
+            // Árbol de Bugambilia (Lado Derecho)
+            ctx.fillStyle = '#3a2211';
+            ctx.fillRect(2180, 460, 15, 60);
+            ctx.fillStyle = '#c2185b';
+            ctx.beginPath(); ctx.arc(2180, 420, 70, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(2240, 430, 60, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(2130, 430, 50, 0, Math.PI * 2); ctx.fill();
+
+
+            // --- 5. DETALLES: GUITARRA Y CÁNTAROS ---
+            ctx.fillStyle = '#a6593f';
+            ctx.beginPath(); ctx.arc(380, 500, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(2600, 500, 15, 0, Math.PI * 2); ctx.fill();
+
+            // Guitarra recostada
+            ctx.fillStyle = '#d97724';
+            ctx.beginPath(); ctx.arc(760, 495, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(760, 475, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#5c3a21';
+            ctx.fillRect(758, 440, 4, 30);
+
+
+            // --- 6. PAVIMENTO DE ADOQUINES / CALLE (3000px) ---
+            ctx.fillStyle = '#c8b496';
+            ctx.fillRect(0, 565, 3000, 235);
+
+            ctx.fillStyle = '#a89476';
+            ctx.fillRect(50, 600, 200, 15); ctx.fillRect(300, 600, 200, 15);
+            ctx.fillRect(600, 600, 200, 15); ctx.fillRect(900, 600, 200, 15);
+            ctx.fillRect(1200, 600, 200, 15); ctx.fillRect(1500, 600, 200, 15);
+            ctx.fillRect(1800, 600, 200, 15); ctx.fillRect(2100, 600, 200, 15);
+            ctx.fillRect(2400, 600, 200, 15); ctx.fillRect(2700, 600, 200, 15);
+
+            ctx.fillRect(150, 660, 200, 20); ctx.fillRect(450, 660, 200, 20);
+            ctx.fillRect(750, 660, 200, 20); ctx.fillRect(1050, 660, 200, 20);
+            ctx.fillRect(1350, 660, 200, 20); ctx.fillRect(1650, 660, 200, 20);
+            ctx.fillRect(1950, 660, 200, 20); ctx.fillRect(2250, 660, 200, 20);
+            ctx.fillRect(2550, 660, 200, 20); ctx.fillRect(2850, 660, 100, 20);
+
+            ctx.restore();
+        }
+
+        function dibujarNube(x, y) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.beginPath();
+            ctx.arc(x, y, 30, 0, Math.PI * 2);
+            ctx.arc(x + 25, y - 10, 25, 0, Math.PI * 2);
+            ctx.arc(x + 50, y, 30, 0, Math.PI * 2);
+            ctx.arc(x + 25, y + 10, 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ==========================================
+        // CONTROLES DE DESLIZAMIENTO
+        // ==========================================
+        function onPointerDown(x) {
+            isDragging = true;
+            startX = x;
+            startCameraX = cameraX;
+        }
+
+        function onPointerMove(x) {
+            if (!isDragging) return;
+            const dx = (startX - x) / (canvas.height / WORLD_HEIGHT);
+            cameraX = startCameraX + dx;
+            clampCamera();
+            render();
+        }
+
+        function onPointerUp() {
+            isDragging = false;
+        }
+
+        container.addEventListener('mousedown', (e) => onPointerDown(e.clientX));
+        window.addEventListener('mousemove', (e) => onPointerMove(e.clientX));
+        window.addEventListener('mouseup', onPointerUp);
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) onPointerDown(e.touches[0].clientX);
+        });
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) onPointerMove(e.touches[0].clientX);
+        });
+        window.addEventListener('touchend', onPointerUp);
+
+        window.addEventListener('resize', resize);
+        resize();
+    </script>
+
+</body>
+
+</html>
